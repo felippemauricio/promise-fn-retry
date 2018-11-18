@@ -1,0 +1,30 @@
+{
+  "name": "promise-retry",
+  "version": "1.0.0",
+  "description": "A simple retry to be used in integrations with NodeJS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felippemauricio/promise-retry.git"
+  },
+  "keywords": [
+    "promise",
+    "retry",
+    "node",
+    "javascript",
+    "web",
+    "integrations",
+    "integration",
+    "request",
+    "fetch"
+  ],
+  "author": "felippemauricio",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/felippemauricio/promise-retry/issues"
+  },
+  "homepage": "https://github.com/felippemauricio/promise-retry#readme"
+}
