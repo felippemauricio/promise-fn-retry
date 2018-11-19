@@ -1,13 +1,14 @@
-const _delay = delay => new Promise(resolve => setTimeout(resolve, delay));
+const delay = delayTime => new Promise(resolve => setTimeout(resolve, delayTime));
 
-const retry = (requestFn, times, delay) => {
+const retry = (requestFn, times, delayTime) => {
   const promise = requestFn();
   return promise.catch((err) => {
     if (times > 0) {
-      return _delay(delay).then(() => retry(requestFn, times - 1, delay));
+      return delay(delayTime).then(() => retry(requestFn, times - 1, delayTime));
     }
     throw err;
   });
 };
+
 
 export default retry;

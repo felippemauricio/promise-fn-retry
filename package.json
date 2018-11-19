@@ -4,7 +4,7 @@
   "description": "A simple retry to be used in integrations with NodeJS",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -26,5 +26,10 @@
   "bugs": {
     "url": "https://github.com/felippemauricio/promise-retry/issues"
   },
-  "homepage": "https://github.com/felippemauricio/promise-retry#readme"
+  "homepage": "https://github.com/felippemauricio/promise-retry#readme",
+  "devDependencies": {
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0"
+  }
 }
