@@ -4,6 +4,7 @@
   "description": "A simple retry to be used in integrations with NodeJS",
   "main": "index.js",
   "scripts": {
+    "build": "babel src --out-dir lib",
     "lint": "eslint ."
   },
   "repository": {
@@ -28,6 +29,9 @@
   },
   "homepage": "https://github.com/felippemauricio/promise-retry#readme",
   "devDependencies": {
+    "@babel/cli": "^7.1.5",
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
     "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0"
