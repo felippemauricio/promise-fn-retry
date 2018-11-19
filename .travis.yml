@@ -16,4 +16,4 @@ jobs:
 
     - stage: test
       script:
-        - yarn test
+        - yarn run test-covarage
