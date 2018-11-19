@@ -6,4 +6,35 @@
 [![Code Style](https://badgen.net/badge/code%20style/airbnb/fd5c63)](https://github.com/airbnb/javascript)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/felippemauricio/promise-retry/pulls)
 
+Abstraction for exponential and custom retry strategies to failed promises.
 
+## Installation
+
+Using Yarn
+
+```
+yarn add promise-retry
+```
+
+Using NPM
+
+```
+npm install promise-retry
+```
+
+## Examples
+
+```
+  import fetch from 'node-fetch';
+  import retry from 'promise-retry';
+
+  const requestUser = () => {
+    const promiseFn = () => fetch('https://api.github.com/users/14');
+
+    return retry(promiseFn)
+      .then(res => res.json());
+  };
+
+  export default requestUser;
+
+```
