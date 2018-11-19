@@ -1,0 +1,13 @@
+src/
+test/
+.babelrc
+.editorconfig
+.eslintignore
+.eslintrc.json
+.gitignore
+.git/
+.npmignore
+.nvmrc
+.travis.yml
+yarn.lock
+
