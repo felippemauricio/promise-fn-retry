@@ -26,6 +26,8 @@ npm i --save promise-fn-retry
 
 ## Usage
 
+Simple Request
+
 ```js
   import fetch from 'node-fetch';
   import retry from 'promise-fn-retry';
@@ -34,7 +36,7 @@ npm i --save promise-fn-retry
     // Create a function that return a promise
     const promiseFn = () => fetch('https://api.github.com/users/14');
 
-    // call retry passing as an argument the promiseFn. Thats it!
+    // call retry passing promiseFn argument. Thats it!
     return retry(promiseFn)
       .then(res => res.json());
   };
@@ -42,6 +44,8 @@ npm i --save promise-fn-retry
   export default requestUser;
 
 ```
+
+Using options param
 
 ```js
   import fetch from 'node-fetch';
@@ -57,7 +61,7 @@ npm i --save promise-fn-retry
       initialDelay: 100,
     };
 
-    // call retry passing as an argument the promiseFn. Thats it!
+    // call retry passing promiseFn argument. Thats it!
     return retry(promiseFn, options)
       .then(res => res.json());
   };
@@ -65,6 +69,71 @@ npm i --save promise-fn-retry
   export default requestUser;
 
 ```
+
+Using onRetry option
+
+```js
+  import fetch from 'node-fetch';
+  import retry from 'promise-fn-retry';
+  import { sendToGrafanaExample, sendToKibanaExample } from 'other-lib';
+
+  const requestUser = () => {
+    // Create a function that return a promise
+    const promiseFn = () => fetch('https://api.github.com/users/14');
+
+    // You can use options to your retry rules strategy.
+    const options = {
+      onRetry() { // Just create a function here
+        sendToGrafanaExample('com.*.error.request.users');
+        sendToKibanaExample('Starting retry users <user-id>');
+      },
+    };
+
+    // call retry passing promiseFn argument. Thats it!
+    return retry(promiseFn, options)
+      .then(res => res.json());
+  };
+
+  export default requestUser;
+
+```
+
+Using shouldRetry option
+
+```js
+  import fetch from 'node-fetch';
+  import retry from 'promise-fn-retry';
+  import doSomething from 'other-lib';
+
+  const requestUser = () => {
+    // Create a function that return a promise
+    const promiseFn = () => fetch('https://api.github.com/users/14');
+
+    // You can use options to your retry rules strategy.
+    const options = {
+      shouldRetry(err) { // Just create an function here
+        // Receive the promise error
+        const { message } = err;
+
+        // Return a boolean that decide if is necessary to run retry again, for example.
+        //   True: Run next retry
+        //   False: Stop here and throw the promise error
+        return !(message === 'FAILED_AUTH');
+      },
+    };
+
+    // call retry passing promiseFn argument. Thats it!
+    return retry(promiseFn, options)
+      .then(res => res.json())
+      .catch(err => {
+        doSomething();
+      });
+  };
+
+  export default requestUser;
+
+```
+
 
 ## API
 
@@ -86,7 +155,7 @@ npm i --save promise-fn-retry
 Each retry double the current delay.
 
 - The first delay uses the `initialDelayTime` option, like `100ms`.
-- The secound uses `200ms` (100 * 2).
+- The second uses `200ms` (100 * 2).
 - The third uses `400ms` ...
 
 
