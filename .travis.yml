@@ -14,7 +14,7 @@ jobs:
       script:
         - yarn run lint
 
-     - stage: test
+    - stage: test
       script:
         - yarn test
       branches:
