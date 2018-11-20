@@ -10,4 +10,5 @@ test/
 .nvmrc
 .travis.yml
 yarn.lock
-
+yarn-error.log
+*.log
