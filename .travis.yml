@@ -14,6 +14,16 @@ jobs:
       script:
         - yarn run lint
 
+     - stage: test
+      script:
+        - yarn test
+      branches:
+        except:
+          - master
+
     - stage: test
       script:
         - yarn run test-coverage
+      branches:
+        only:
+          - master
