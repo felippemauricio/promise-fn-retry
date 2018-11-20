@@ -1,6 +1,6 @@
 {
   "name": "promise-fn-retry",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A simple retry to be used in integrations with NodeJS",
   "main": "lib/index.js",
   "scripts": {
@@ -25,7 +25,7 @@
     "fetch"
   ],
   "author": "felippemauricio",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/felippemauricio/promise-fn-retry/issues"
   },

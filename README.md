@@ -7,7 +7,9 @@
 [![Code Style](https://badgen.net/badge/code%20style/airbnb/fd5c63)](https://github.com/airbnb/javascript)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/felippemauricio/promise-fn-retry/pulls)
 
-Abstraction for exponential and custom retry strategies to failed promises. Retrying made simple and easy. \o/
+Abstraction for exponential and custom retry strategies to failed promises.
+
+Retrying made simple and easy. \o/
 
 ## Installation
 
@@ -79,3 +81,15 @@ npm i --save promise-fn-retry
 | onRetry                                    |                        | Function that is called after retry (Function). ex: metrics   |
 | shouldRetry                                |                        | Function called after retry (Function). ex: auth error        |
 
+### Delay strategy
+
+Each retry double the current delay.
+
+- The first delay uses the `initialDelayTime` option, like `100ms`.
+- The secound uses `200ms` (100 * 2).
+- The third uses `400ms` ...
+
+
+## License
+
+Licensed under the MIT License, Copyright © 2018-present Felippe Maurício.
