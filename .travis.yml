@@ -17,13 +17,10 @@ jobs:
     - stage: test
       script:
         - yarn test
-      branches:
-        except:
-          - master
+      if: branch != master
 
     - stage: test
       script:
         - yarn run test-coverage
-      branches:
-        only:
-          - master
+      if: branch = master
+
