@@ -1,5 +1,5 @@
 # Promise Retry
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/felippemauricio/promise-fn-retry/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/felippemauricio/promise-fn-retry/blob/master/LICENSE.md)
 [![npm version](https://img.shields.io/npm/v/promise-fn-retry.svg?style=flat)](https://www.npmjs.com/package/promise-fn-retry)
 [![Build Status](https://travis-ci.org/felippemauricio/promise-fn-retry.svg?branch=master)](https://travis-ci.org/felippemauricio/promise-fn-retry)
 [![devDependencies Status](https://david-dm.org/felippemauricio/promise-fn-retry/dev-status.svg)](https://david-dm.org/felippemauricio/promise-fn-retry?type=dev)
