@@ -21,6 +21,6 @@ jobs:
 
     - stage: test
       script:
-        - yarn run test-coverage
+        - yarn run test:ci
       if: branch = master
 

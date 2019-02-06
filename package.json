@@ -7,7 +7,7 @@
     "build": "babel src --out-dir lib",
     "lint": "eslint .",
     "test": "jest",
-    "test-coverage": "jest --coverage --coverageReporters=text-lcov | coveralls"
+    "test:ci": "jest --coverage --coverageReporters=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,11 @@
     "request",
     "fetch"
   ],
-  "author": "felippemauricio",
+  "author": {
+    "name": "Felippe Maurício",
+    "email": "felippemauriciov@gmail.com",
+    "url": "https://github.com/felippemauricio"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/felippemauricio/promise-fn-retry/issues"
