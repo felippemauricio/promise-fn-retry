@@ -14,15 +14,15 @@
     "url": "git+https://github.com/felippemauricio/promise-fn-retry.git"
   },
   "keywords": [
-    "promise",
-    "retry",
-    "node",
+    "fetch",
     "javascript",
-    "web",
-    "integrations",
     "integration",
+    "integrations",
+    "node",
     "request",
-    "fetch"
+    "retry",
+    "promise",
+    "web"
   ],
   "author": {
     "name": "Felippe Maurício",
@@ -38,11 +38,11 @@
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.3.1",
-    "babel-jest": "^24.0.0",
+    "babel-jest": "^24.1.0",
     "coveralls": "^3.0.2",
     "eslint": "^5.13.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.16.0",
-    "jest": "^24.0.0"
+    "jest": "^24.1.0"
   }
 }
