@@ -7,7 +7,7 @@
     "build": "babel src --out-dir lib",
     "lint": "eslint .",
     "test": "jest",
-    "test:ci": "jest --coverage --coverageReporters=text-lcov | coveralls"
+    "test:coverage": "jest --coverage --coverageReporters=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
