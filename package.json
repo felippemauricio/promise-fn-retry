@@ -15,14 +15,11 @@
   },
   "keywords": [
     "fetch",
-    "javascript",
     "integration",
-    "integrations",
     "node",
     "request",
     "retry",
-    "promise",
-    "web"
+    "promise"
   ],
   "author": {
     "name": "Felippe Maurício",
@@ -38,7 +35,6 @@
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.3.1",
-    "babel-jest": "^24.1.0",
     "coveralls": "^3.0.2",
     "eslint": "^5.13.0",
     "eslint-config-airbnb-base": "^13.1.0",
