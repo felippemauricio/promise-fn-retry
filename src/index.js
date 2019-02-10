@@ -76,4 +76,3 @@ const retry = (requestFn, options = defaultOptions) => {
 
 
 export default retry;
-module.exports = retry;
