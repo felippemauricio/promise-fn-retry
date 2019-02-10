@@ -1,2 +1,8 @@
 src/
+tests/
+.editorconfig
+.eslintignore
+.eslintrc.json
+.travis.yml
 babel.config.js
+*.log
