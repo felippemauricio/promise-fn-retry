@@ -13,4 +13,7 @@ module.exports = {
       presetEnvOptions,
     ],
   ],
+  plugins: [
+    'add-module-exports',
+  ],
 };
