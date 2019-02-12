@@ -152,7 +152,7 @@ Using shouldRetry option
 
 ### Delay strategy
 
-Each retry double the current delay.
+Each retry doubles the current delay.
 
 - The first delay uses the `initialDelayTime` option, like `100ms`.
 - The second uses `200ms` (100 * 2).
