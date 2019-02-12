@@ -66,9 +66,11 @@ const retry = (requestFn, options = defaultOptions) => {
 
   return promise.catch((err) => {
     if (shouldRetryByExecutedTimes(optionsParsed) && (!shouldRetry || shouldRetry(err))) {
-      if (onRetry) onRetry(err, { ...optionsParsed });
       const optionsToRetry = buildOptionsToRetry(optionsParsed);
-      return delay(optionsToRetry.retained).then(() => retry(requestFn, optionsToRetry));
+      return delay(optionsToRetry.retained).then(() => {
+        if (onRetry) onRetry(err, { ...optionsParsed });
+        return retry(requestFn, optionsToRetry);
+      });
     }
     throw err;
   });
