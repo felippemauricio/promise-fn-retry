@@ -1,6 +1,6 @@
 {
   "name": "promise-fn-retry",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A simple retry to be used in integrations with NodeJS",
   "main": "lib/index.js",
   "scripts": {
