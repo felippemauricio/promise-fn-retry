@@ -4,7 +4,7 @@
   "description": "A simple retry to be used in integrations with NodeJS",
   "main": "lib/index.js",
   "scripts": {
-    "build": "babel src --out-dir lib",
+    "build": "NODE_ENV=production babel src --out-dir lib",
     "lint": "eslint .",
     "test": "jest",
     "test:watch": "jest --watch",
