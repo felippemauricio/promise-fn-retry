@@ -70,85 +70,44 @@ Using options param
 
 ```
 
-Using onRetry option
-
-```js
-  import fetch from 'node-fetch';
-  import retry from 'promise-fn-retry';
-  import { sendToGrafanaExample, sendToKibanaExample } from 'other-lib';
-
-  const requestUser = () => {
-    // Create a function that return a promise
-    const promiseFn = () => fetch('https://api.github.com/users/14');
-
-    // You can use options to your retry rules strategy.
-    const options = {
-      onRetry() { // Just create a function here
-        sendToGrafanaExample('com.*.error.request.users');
-        sendToKibanaExample('Starting retry users <user-id>');
-      },
-    };
-
-    // call retry passing promiseFn argument. Thats it!
-    return retry(promiseFn, options)
-      .then(res => res.json());
-  };
-
-  export default requestUser;
-
-```
-
-Using shouldRetry option
-
-```js
-  import fetch from 'node-fetch';
-  import retry from 'promise-fn-retry';
-  import doSomething from 'other-lib';
-
-  const requestUser = () => {
-    // Create a function that return a promise
-    const promiseFn = () => fetch('https://api.github.com/users/14');
-
-    // You can use options to your retry rules strategy.
-    const options = {
-      shouldRetry(err) { // Just create an function here
-        // Receive the promise error
-        const { message } = err;
-
-        // Return a boolean that decide if is necessary to run retry again, for example.
-        //   True: Run next retry
-        //   False: Stop here and throw the promise error
-        return !(message === 'FAILED_AUTH');
-      },
-    };
-
-    // call retry passing promiseFn argument. Thats it!
-    return retry(promiseFn, options)
-      .then(res => res.json())
-      .catch(err => {
-        doSomething();
-      });
-  };
-
-  export default requestUser;
-
-```
-
 
 ## API
 
 ```js
-  retry(promiseFn : Function, options : Object) => Promise
+  retry(promiseFn : Function, [options : Object]) => Promise
 ```
 
 ### Options
 
-| OPTION                                     | DEFAULT                | DESCRIPTION                                                   |
-|--------------------------------------------|:----------------------:|---------------------------------------------------------------|
-| times                                      | 1                      | Retry Times (Number)                                          |
-| initialDelayTime                           | 100                    | Delay to start new retry (Number)                             |
-| onRetry                                    |                        | Function that is called after retry (Function). ex: metrics   |
-| shouldRetry                                |                        | Function called after retry (Function). ex: auth error        |
+These are the available config options for retrying. Only promiseFn is required. If an object isn't provided, the lib will use the default options.
+
+```javascript
+{
+  // The number of times the lib will retry execute the promiseFn
+  // Default: 1
+  times: 3,
+
+  // The first wait time to delay
+  // Default: 100
+  initialDelayTime: 200,
+
+  // (Optional) This callback is executed on each retry. It's useful to log your errors to a log service for example
+  // Default: null
+  onRetry: (error) => {
+    console.log(error);
+    sendToSentry(error);
+    sendToKibana(error);
+  },
+
+ // (Optional) This callback is executed before each retry to determine if it's necessary retrying.
+ // If the function returns true, the next retry will be executed, else the retrying will be canceled.
+ // Default: null
+ shouldRetry: (error) => {
+   console.log(error);
+   return (error.message === 'FAILED_AUTH');
+ }
+}
+```
 
 ### Delay strategy
 
