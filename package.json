@@ -38,7 +38,7 @@
     "@babel/preset-env": "^7.4.5",
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.8.0",
-    "babel-plugin-add-module-exports": "^1.0.2",
+    "babel-plugin-add-module-exports": "1.0.4",
     "coveralls": "^3.0.4",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
