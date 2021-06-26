@@ -5,7 +5,6 @@ const presetEnvOptions = NODE_ENV === 'production' ? {} : {
   },
 };
 
-
 module.exports = {
   presets: [
     [

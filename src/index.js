@@ -19,7 +19,7 @@ const controlOptions = {
 /**
  * Build the options parsed object in order
  */
-const buildOptionsParsed = options => ({
+const buildOptionsParsed = (options) => ({
   ...defaultOptions,
   ...controlOptions,
   ...options,
@@ -29,7 +29,7 @@ const buildOptionsParsed = options => ({
  * Used to calc new delay on the next retry
  * Today, this lib double the currentDelay
  */
-const calcNewDelay = currentDelay => currentDelay * 2;
+const calcNewDelay = (currentDelay) => currentDelay * 2;
 
 /**
  * Build the options to retry object
@@ -53,7 +53,7 @@ const shouldRetryByExecutedTimes = ({ retained, times }) => retained < times;
 /**
  * Use the setTimeout to delay retry
  */
-const delay = delayTime => new Promise(resolve => setTimeout(resolve, delayTime));
+const delay = (delayTime) => new Promise((resolve) => setTimeout(resolve, delayTime));
 
 /**
  * This run the lib
@@ -75,6 +75,5 @@ const retry = (requestFn, options = defaultOptions) => {
     throw err;
   });
 };
-
 
 export default retry;

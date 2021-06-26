@@ -1,6 +1,5 @@
 import retry from '../src';
 
-
 describe('Retry', () => {
   const success = 'ok';
   const fail = 'fail';
