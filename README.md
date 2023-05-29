@@ -58,7 +58,7 @@ Using options param
     // You can use options to your retry rules strategy.
     const options = {
       times: 3,
-      initialDelay: 100,
+      initialDelayTime: 100,
     };
 
     // call retry passing promiseFn argument. Thats it!
