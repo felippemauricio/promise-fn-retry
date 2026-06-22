@@ -244,6 +244,39 @@ npm run typecheck # tsc --noEmit
 npm run build     # tsup → dist/ (ESM + CJS + .d.ts)
 ```
 
+## Working with Claude Code
+
+This repository is set up to be edited with [Claude Code](https://claude.com/claude-code)
+(or any coding agent). A [`CLAUDE.md`](https://github.com/felippemauricio/promise-fn-retry/blob/main/CLAUDE.md)
+at the root tells the agent what the library does, where the code lives
+(`src/types.ts`, `src/retry.ts`, `src/index.ts`), the commands to run, and the
+conventions to follow.
+
+To make a change:
+
+```bash
+git clone https://github.com/felippemauricio/promise-fn-retry.git
+cd promise-fn-retry
+npm install
+claude   # start Claude Code in the repo, then describe what you want
+```
+
+Some prompts that work well here:
+
+- _"Add a `maxRetries`-reached callback that fires when the retries are exhausted."_
+- _"Change the jitter strategy to full jitter and update the tests and README."_
+- _"Add a `timeout` option that rejects an individual attempt after N ms."_
+
+The agent has everything it needs to keep the bar high: `npm test` (100%
+coverage is enforced), `npm run lint`, `npm run typecheck` and `npm run build`.
+Conventions it should follow are in `CLAUDE.md` — strict TypeScript, additive
+options that preserve the defaults, Conventional Commits, and documentation in
+Australian English. Run the full check before opening a PR:
+
+```bash
+npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run build
+```
+
 ## Contributing
 
 Issues and pull requests are welcome — please open an issue to discuss
