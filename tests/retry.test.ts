@@ -149,4 +149,25 @@ describe('retry', () => {
     ).rejects.toBeDefined();
     expect(fn).toHaveBeenCalledTimes(1);
   });
+
+  it('falls back to a default error when an aborted signal has no reason', async () => {
+    // AbortController always sets a reason, so use a minimal aborted signal.
+    const signal = { aborted: true, reason: undefined } as unknown as AbortSignal;
+    const fn = vi.fn(promiseFnFail);
+    await expect(retry(fn, { signal })).rejects.toThrow('The operation was aborted');
+    expect(fn).not.toHaveBeenCalled();
+  });
+
+  it('clears the abort listener when a retry succeeds with a signal', async () => {
+    const controller = new AbortController();
+    let called = false;
+    const fn = () => {
+      if (called) return promiseFnSuccess();
+      called = true;
+      return promiseFnFail();
+    };
+    await expect(retry(fn, { signal: controller.signal, initialDelayTime: 1 })).resolves.toBe(
+      success,
+    );
+  });
 });

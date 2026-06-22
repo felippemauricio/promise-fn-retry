@@ -7,10 +7,10 @@ export default defineConfig({
       include: ['src/**'],
       reporter: ['text', 'lcov'],
       thresholds: {
-        lines: 95,
+        lines: 100,
         functions: 100,
-        branches: 90,
-        statements: 95,
+        branches: 100,
+        statements: 100,
       },
     },
   },
