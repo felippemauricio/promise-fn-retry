@@ -27,7 +27,11 @@ const user = await retry(() => fetch('/api/user').then((r) => r.json()), {
 });
 ```
 
-**See it in action:** [interactive playground →](https://felippemauricio.github.io/promise-fn-retry/)
+> ### ▶ [Try the live playground →](https://felippemauricio.github.io/promise-fn-retry/)
+>
+> Tune `times`, `backoffFactor`, `jitter`, `maxDelayTime` and an `AbortSignal`,
+> then watch every attempt land on a **backoff timeline — to scale, in real time**.
+> The clearest way to feel how the options shape the waiting.
 
 ## Why
 
