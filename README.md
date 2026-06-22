@@ -1,123 +1,137 @@
-# Promise Retry
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/felippemauricio/promise-fn-retry/blob/master/LICENSE.md)
+# promise-fn-retry
+
 [![npm version](https://img.shields.io/npm/v/promise-fn-retry.svg?style=flat)](https://www.npmjs.com/package/promise-fn-retry)
-[![Build Status](https://travis-ci.org/felippemauricio/promise-fn-retry.svg?branch=master)](https://travis-ci.org/felippemauricio/promise-fn-retry)
-[![devDependencies Status](https://david-dm.org/felippemauricio/promise-fn-retry/dev-status.svg)](https://david-dm.org/felippemauricio/promise-fn-retry?type=dev)
-[![Coverage Status](https://coveralls.io/repos/github/felippemauricio/promise-fn-retry/badge.svg?branch=master)](https://coveralls.io/github/felippemauricio/promise-fn-retry?branch=master)
-[![Code Style](https://badgen.net/badge/code%20style/airbnb/fd5c63)](https://github.com/airbnb/javascript)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/felippemauricio/promise-fn-retry/pulls)
+[![CI](https://github.com/felippemauricio/promise-fn-retry/actions/workflows/ci.yml/badge.svg)](https://github.com/felippemauricio/promise-fn-retry/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/felippemauricio/promise-fn-retry/branch/main/graph/badge.svg)](https://codecov.io/gh/felippemauricio/promise-fn-retry)
+[![types: included](https://img.shields.io/badge/types-included-3178c6.svg)](./dist/index.d.ts)
+[![live demo](https://img.shields.io/badge/demo-live-35e0c8.svg)](https://felippemauricio.github.io/promise-fn-retry/)
+[![docs: en-AU](https://img.shields.io/badge/docs-en--AU-blue.svg)](#documentation)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
 
-Abstraction for exponential and custom retry strategies to failed promises.
+A small, **typed** helper for retrying promises that fail, with exponential
+backoff, jitter, a delay cap and cancellation via `AbortSignal`.
 
-Retrying made simple and easy. \o/
+- **Isomorphic** — works in the **browser and in Node** (≥ 12), in ESM and CommonJS.
+- **Zero dependencies** and **bundled types** (no external `@types/...`).
+- **v1-compatible** — the defaults preserve the old behaviour.
+
+## Demo
+
+[**Open the interactive playground →**](https://felippemauricio.github.io/promise-fn-retry/)
+Tune the options and watch each attempt land on a backoff timeline, to scale, in
+real time.
+
+Or run the demos locally:
+
+```bash
+npm run demo:browser   # the playground at http://localhost:8080
+npm run demo:backend   # a flaky HTTP server + retry() client (Node 18+)
+```
+
+See [`demo/`](./demo) for details.
 
 ## Installation
 
-Using yarn:
-```js
-yarn add promise-fn-retry
-```
-
-Using npm:
-
-```js
-npm i --save promise-fn-retry
+```bash
+npm install promise-fn-retry
 ```
 
 ## Usage
 
-Simple Request
+### TypeScript / ESM
 
-```js
-  import fetch from 'node-fetch';
-  import retry from 'promise-fn-retry';
+```ts
+import retry from 'promise-fn-retry';
 
-  const requestUser = () => {
-    // Create a function that return a promise
-    const promiseFn = () => fetch('https://api.github.com/users/14');
-
-    // call retry passing promiseFn argument. Thats it!
-    return retry(promiseFn)
-      .then(res => res.json());
-  };
-
-  export default requestUser;
-
+const fetchUser = () =>
+  retry(() => fetch('https://api.github.com/users/14'), {
+    times: 3,
+    initialDelayTime: 100,
+  }).then((res) => res.json());
 ```
 
-Using options param
+### CommonJS
 
 ```js
-  import fetch from 'node-fetch';
-  import retry from 'promise-fn-retry';
+const retry = require('promise-fn-retry');
 
-  const requestUser = () => {
-    // Create a function that return a promise
-    const promiseFn = () => fetch('https://api.github.com/users/14');
-
-    // You can use options to your retry rules strategy.
-    const options = {
-      times: 3,
-      initialDelayTime: 100,
-    };
-
-    // call retry passing promiseFn argument. Thats it!
-    return retry(promiseFn, options)
-      .then(res => res.json());
-  };
-
-  export default requestUser;
-
+retry(() => fetch('https://example.com'), { times: 3 });
 ```
-
 
 ## API
 
-```js
-  retry(promiseFn : Function, [options : Object]) => Promise
+```ts
+retry<T>(fn: () => Promise<T>, options?: Options): Promise<T>
 ```
+
+Only `fn` is required. Without `options`, the defaults are used.
 
 ### Options
 
-These are the available config options for retrying. Only promiseFn is required. If an object isn't provided, the lib will use the default options.
+| Option             | Type                       | Default    | Description                                                                                   |
+| ------------------ | -------------------------- | ---------- | --------------------------------------------------------------------------------------------- |
+| `times`            | `number`                   | `1`        | Number of retries after the first failure.                                                    |
+| `initialDelayTime` | `number`                   | `100`      | Delay (ms) before the first retry.                                                            |
+| `backoffFactor`    | `number`                   | `2`        | Multiplier applied to the delay on each retry. `1` = linear, `2` = doubles, `3` = aggressive. |
+| `maxDelayTime`     | `number`                   | `Infinity` | Cap on the delay between attempts (ms).                                                       |
+| `jitter`           | `boolean`                  | `false`    | Randomises the delay (_equal jitter_) to avoid a _thundering herd_.                           |
+| `signal`           | `AbortSignal`              | `—`        | Cancels the in-flight retries (browser and Node).                                             |
+| `onRetry`          | `(error, options) => void` | `null`     | Called on each retry. Handy for logs/metrics (Sentry, Kibana, etc.).                          |
+| `shouldRetry`      | `(error) => boolean`       | `null`     | Decides whether to retry given the error. Return `false` to stop.                             |
 
-```javascript
-{
-  // The number of times the lib will retry execute the promiseFn
-  // Default: 1
-  times: 3,
+### Backoff strategy
 
-  // The first wait time to delay
-  // Default: 100
+The delay grows by multiplying by `backoffFactor` on each retry, bounded by
+`maxDelayTime`. With the defaults (`backoffFactor: 2`):
+
+- 1st retry → `initialDelayTime` (e.g. `100ms`)
+- 2nd retry → `200ms`
+- 3rd retry → `400ms` ...
+
+With `jitter: true`, each delay is randomised within `[delay/2, delay]`.
+
+### Examples
+
+```ts
+// Aggressive backoff with a cap and jitter
+retry(fetchData, {
+  times: 5,
   initialDelayTime: 200,
+  backoffFactor: 3,
+  maxDelayTime: 10_000,
+  jitter: true,
+  onRetry: (error) => sendToSentry(error),
+  shouldRetry: (error) => (error as Error).message !== 'FAILED_AUTH',
+});
 
-  // (Optional) This callback is executed on each retry. It's useful to log your errors to a log service for example
-  // Default: null
-  onRetry: (error) => {
-    console.log(error);
-    sendToSentry(error);
-    sendToKibana(error);
-  },
-
- // (Optional) This callback is executed before each retry to determine if it's necessary retrying.
- // If the function returns true, the next retry will be executed, else the retrying will be canceled.
- // Default: null
- shouldRetry: (error) => {
-   console.log(error);
-   return (error.message === 'FAILED_AUTH');
- }
-}
+// Cancellation with AbortSignal
+const controller = new AbortController();
+retry(fetchData, { times: 5, signal: controller.signal });
+controller.abort(); // stops the pending retries
 ```
 
-### Delay strategy
+## Development
 
-Each retry doubles the current delay.
+```bash
+npm install
+npm test          # tests (Vitest)
+npm run lint      # ESLint
+npm run typecheck # tsc --noEmit
+npm run build     # tsup → dist/ (ESM + CJS + .d.ts)
+```
 
-- The first delay uses the `initialDelayTime` option, like `100ms`.
-- The second uses `200ms` (100 * 2).
-- The third uses `400ms` ...
+## Documentation
 
+- **Examples:** the [interactive playground](https://felippemauricio.github.io/promise-fn-retry/)
+  and the runnable demos in [`demo/`](./demo) (browser + Node).
+- **Design & plan:** see [`docs/`](./docs).
+- All documentation in this repository is written in **Australian English (en-AU)**.
 
-## License
+## Contributing
 
-Licensed under the MIT License, Copyright © 2018-present Felippe Maurício.
+PRs are welcome. Please open an issue to discuss significant changes first.
+Documentation contributions should follow Australian English (en-AU) spelling.
+
+## Licence
+
+MIT © 2018-2026 Felippe Maurício.
