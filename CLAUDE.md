@@ -20,9 +20,11 @@ bundled types.
 
 ## Architecture
 
-- All logic lives in `src/index.ts`: the recursive `retry` function plus pure
-  helpers (`buildOptionsParsed`, `buildOptionsToRetry`, `calcNewDelay`,
-  `shouldRetryByExecutedTimes`, `computeWaitTime`, `delay`).
+- Source is split into three files:
+  - `src/types.ts` — public types (`Options`, `ResolvedOptions`, `OnRetry`, `ShouldRetry`).
+  - `src/retry.ts` — the `retry` function plus pure helpers (`resolveOptions`,
+    `nextDelay`, `computeWaitTime`, `delay`, `abortError`) and the recursive `run` loop.
+  - `src/index.ts` — the entry point; re-exports `retry` (default + named) and the types.
 - Stable public API: `retry<T>(fn, options?)` with `default` and named exports;
   `require('promise-fn-retry')` returns the function (a footer in
   `tsup.config.ts` reassigns `module.exports = retry`, preserving v1 behaviour).
