@@ -284,4 +284,4 @@ significant changes first. Documentation is written in Australian English (en-AU
 
 ## License
 
-MIT © 2018-2026 Felippe Maurício. See [LICENSE.md](https://github.com/felippemauricio/promise-fn-retry/blob/main/LICENSE.md).
+MIT © 2018-present Felippe Maurício. See [LICENSE.md](https://github.com/felippemauricio/promise-fn-retry/blob/main/LICENSE.md).
