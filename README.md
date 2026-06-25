@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/gh/felippemauricio/promise-fn-retry/branch/main/graph/badge.svg)](https://codecov.io/gh/felippemauricio/promise-fn-retry)
 [![types: included](https://img.shields.io/badge/types-included-3178c6.svg)](https://github.com/felippemauricio/promise-fn-retry/blob/main/src/index.ts)
 [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](https://github.com/felippemauricio/promise-fn-retry/blob/main/package.json)
-[![live demo](https://img.shields.io/badge/demo-live-35e0c8.svg)](https://felippemauricio.github.io/promise-fn-retry/)
+[![docs](https://img.shields.io/badge/docs-live-35e0c8.svg)](https://felippemauricio.github.io/promise-fn-retry/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/felippemauricio/promise-fn-retry/blob/main/LICENSE.md)
 
 `promise-fn-retry` wraps a function that returns a promise and retries it when it
@@ -29,17 +29,23 @@ const user = await retry(() => fetch('/api/user').then((r) => r.json()), {
 
 > ### ▶ [Try the live playground →](https://felippemauricio.github.io/promise-fn-retry/)
 >
-> Tune `times`, `backoffFactor`, `jitter`, `maxDelayTime` and an `AbortSignal`,
-> then watch every attempt land on a **backoff timeline — to scale, in real time**.
-> The clearest way to feel how the options shape the waiting.
+> Tune `times`, `backoffFactor`, `maxDelayTime`, equal/full `jitter`, `forever`,
+> an `AbortSignal` and a `BailError` give-up, then watch every attempt land on a
+> **backoff timeline — to scale, in real time**. The clearest way to feel how the
+> options shape the waiting.
 
 ## Why
 
 - **Just a function.** One call, `retry(fn, options)`. No classes, no builders.
 - **Smart waiting.** Exponential backoff with a configurable factor, an optional
-  delay cap, and optional jitter.
+  delay cap, equal or full jitter, a `forever` mode, and a `getDelay` hook to honour
+  server hints like `Retry-After`.
+- **Bounded.** Time out a single hung attempt (`attemptTimeout`) and cap the total
+  time spent retrying (`maxElapsedTime`) — not just the attempt count.
 - **Cancellable.** Pass an `AbortSignal` to stop pending retries.
-- **Selective.** Decide per error whether to retry at all (`shouldRetry`).
+- **Selective.** Decide per error whether to retry (`shouldRetry`), or throw a
+  `BailError` from `fn` to give up immediately on the result.
+- **Polls, too.** Retry on the resolved value with `until` to wait for a condition.
 - **Observable.** Hook every retry for logging or metrics (`onRetry`).
 - **Runs anywhere.** Browser and Node (≥ 12), shipped as both ESM and CommonJS.
 - **Typed, zero-dependency.** Type declarations are bundled — no `@types/...` needed.
@@ -83,28 +89,49 @@ retry(() => fetch('https://api.example.com/data'), { times: 3 });
 ## API
 
 ```ts
-retry<T>(fn: () => Promise<T>, options?: Options): Promise<T>;
+retry<T>(fn: (attempt: number) => Promise<T>, options?: Options): Promise<T>;
 ```
 
-Calls `fn`. If the returned promise resolves, `retry` resolves with that value.
-If it rejects, `retry` waits and calls `fn` again, up to `times` retries. When
-the retries are exhausted (or `shouldRetry` returns `false`, or the `signal`
-aborts), the promise rejects with the last error.
+Calls `fn` with the current **1-indexed attempt number** (`1` on the first try,
+`2` on the first retry, and so on). If the returned promise resolves, `retry`
+resolves with that value. If it rejects, `retry` waits and calls `fn` again, up
+to `times` retries. When the retries are exhausted (or `shouldRetry` returns
+`false`, or the `signal` aborts, or `fn` throws a [`BailError`](#bail-out-early)),
+the promise rejects with the last error.
 
 Only `fn` is required. Every option has a default that reproduces v1 behaviour.
 
 ### Options
 
-| Option             | Type                                                 | Default     | Description                                                                                  |
-| ------------------ | ---------------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------- |
-| `times`            | `number`                                             | `1`         | Number of retries after the first failure.                                                   |
-| `initialDelayTime` | `number`                                             | `100`       | Delay in milliseconds before the first retry.                                                |
-| `backoffFactor`    | `number`                                             | `2`         | Multiplier applied to the delay on each retry. `1` = constant, `2` = doubles, `3` = steeper. |
-| `maxDelayTime`     | `number`                                             | `Infinity`  | Upper bound on the delay between attempts, in milliseconds.                                  |
-| `jitter`           | `boolean`                                            | `false`     | Randomise each delay within `[delay / 2, delay]` to avoid a thundering herd.                 |
-| `signal`           | `AbortSignal`                                        | `undefined` | Cancel pending retries. Works in the browser and in Node.                                    |
-| `onRetry`          | `(error: unknown, options: ResolvedOptions) => void` | `null`      | Called on each retry. Useful for logging and metrics.                                        |
-| `shouldRetry`      | `(error: unknown) => boolean`                        | `null`      | Called before each retry. Return `false` to stop retrying immediately.                       |
+| Option             | Type                                                 | Default     | Description                                                                                                       |
+| ------------------ | ---------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| `times`            | `number`                                             | `1`         | Number of retries after the first failure.                                                                        |
+| `initialDelayTime` | `number`                                             | `100`       | Delay in milliseconds before the first retry.                                                                     |
+| `backoffFactor`    | `number`                                             | `2`         | Multiplier applied to the delay on each retry. `1` = constant, `2` = doubles, `3` = steeper.                      |
+| `maxDelayTime`     | `number`                                             | `Infinity`  | Upper bound on the delay between attempts, in milliseconds.                                                       |
+| `jitter`           | `boolean \| 'equal' \| 'full'`                       | `false`     | Randomise each delay. `'equal'` (or `true`) spreads it across `[delay / 2, delay]`; `'full'` across `[0, delay]`. |
+| `forever`          | `boolean`                                            | `false`     | Retry indefinitely until success or abort, ignoring `times`.                                                      |
+| `attemptTimeout`   | `number`                                             | `Infinity`  | Abort and retry a single attempt that runs longer than this, in ms (see below).                                   |
+| `maxElapsedTime`   | `number`                                             | `Infinity`  | Stop retrying once this much wall-clock time has elapsed in total, in ms.                                         |
+| `getDelay`         | `(error, ctx) => number \| null`                     | `null`      | Derive the next wait from the error (e.g. a `Retry-After` header); return ms to override, or `null` to keep it.   |
+| `until`            | `(result) => boolean`                                | `null`      | Retry while the resolved value fails this predicate — turns `retry` into a poll-until.                            |
+| `signal`           | `AbortSignal`                                        | `undefined` | Cancel pending retries. Works in the browser and in Node.                                                         |
+| `onRetry`          | `(error: unknown, options: ResolvedOptions) => void` | `null`      | Called on each retry. Useful for logging and metrics.                                                             |
+| `shouldRetry`      | `(error: unknown) => boolean`                        | `null`      | Called before each retry. Return `false` to stop retrying immediately.                                            |
+
+#### Alternative option names
+
+A few alternative option names are accepted as aliases and mapped onto the
+canonical options above. If you pass both a canonical option and its alias, the
+canonical one wins.
+
+| Alias        | Maps to            |
+| ------------ | ------------------ |
+| `retries`    | `times`            |
+| `factor`     | `backoffFactor`    |
+| `minTimeout` | `initialDelayTime` |
+| `maxTimeout` | `maxDelayTime`     |
+| `randomize`  | `jitter: 'full'`   |
 
 ### Returns
 
@@ -116,10 +143,16 @@ error thrown by `fn` (or with the abort reason if a `signal` aborts).
 ```ts
 import retry, {
   retry, // named export, same function as the default
+  BailError, // value export — throw it from fn to give up (see below)
   type Options,
   type ResolvedOptions,
   type OnRetry,
+  AttemptTimeoutError, // value export — the error a timed-out attempt rejects with
   type ShouldRetry,
+  type Jitter,
+  type OperationFn,
+  type GetDelay,
+  type Until,
 } from 'promise-fn-retry';
 ```
 
@@ -140,8 +173,9 @@ With the defaults (`initialDelayTime: 100`, `backoffFactor: 2`):
 
 - **`maxDelayTime`** caps the growth, e.g. `maxDelayTime: 500` turns the sequence
   above into `100 → 200 → 400 → 500 → 500 …`.
-- **`jitter`** spreads each delay across `[delay / 2, delay]`, so the `400 ms`
-  step becomes a value somewhere between `200 ms` and `400 ms`.
+- **`jitter`** spreads each delay randomly. `'equal'` (or `true`) keeps it within
+  `[delay / 2, delay]`, so the `400 ms` step lands between `200 ms` and `400 ms`;
+  `'full'` widens that to `[0, delay]` — anywhere up to `400 ms`.
 
 You can feel this directly in the [playground](https://felippemauricio.github.io/promise-fn-retry/),
 which plots every attempt on a timeline to scale.
@@ -168,6 +202,40 @@ const data = await retry(
     },
   },
 );
+```
+
+### Bail out early
+
+`shouldRetry` only sees the error. When the decision depends on the _result_ —
+say an HTTP `404` body you can read but should never retry — throw a `BailError`
+from inside `fn`. It stops immediately and rejects with the wrapped cause,
+skipping the wait, `shouldRetry` and any remaining attempts (even with `forever`):
+
+```ts
+import retry, { BailError } from 'promise-fn-retry';
+
+const data = await retry(
+  async (attempt) => {
+    const res = await fetch('/api/things');
+    if (res.status === 404) throw new BailError(new Error('Not found')); // give up now
+    if (!res.ok) throw new Error('Transient failure'); // retried
+    return res.json();
+  },
+  { times: 5 },
+);
+```
+
+### Retry forever until it works (or you abort)
+
+```ts
+const controller = new AbortController();
+
+const data = await retry(connectToBroker, {
+  forever: true,
+  initialDelayTime: 500,
+  maxDelayTime: 10_000,
+  signal: controller.signal, // the only way out besides success
+});
 ```
 
 ### Cancel with an AbortSignal
@@ -211,6 +279,80 @@ await retry(callApi, {
 });
 ```
 
+### Act on the attempt number
+
+`fn` receives the 1-indexed attempt number, handy for logging or for changing
+behaviour as attempts climb:
+
+```ts
+await retry(
+  (attempt) => {
+    console.log(`Attempt ${attempt}`);
+    return fetch(`/api/things?attempt=${attempt}`);
+  },
+  { times: 3 },
+);
+```
+
+### Bound a single attempt with `attemptTimeout`
+
+A request that hangs forever never rejects, so retries never even start. Give each
+attempt a deadline: if it runs over, the attempt is aborted and retried. Where
+`AbortController` is available, `fn` receives a per-attempt `AbortSignal` that
+aborts on timeout (or when your outer `signal` aborts) — wire it into `fetch`:
+
+```ts
+const data = await retry(
+  (attempt, signal) => fetch('/api/slow', { signal }).then((r) => r.json()),
+  {
+    times: 3,
+    attemptTimeout: 2_000, // give up on an attempt after 2s and try again
+  },
+);
+```
+
+### Cap the total time spent retrying
+
+Bound the whole operation by wall-clock time, not just attempt count — useful for
+a request budget or an SLA. The final wait is trimmed so it never overshoots:
+
+```ts
+await retry(callApi, {
+  forever: true,
+  initialDelayTime: 200,
+  maxElapsedTime: 30_000, // keep trying for at most 30s, then reject
+});
+```
+
+### Honour a server's `Retry-After`
+
+When the failure carries a hint about how long to wait, use it instead of the
+computed backoff:
+
+```ts
+await retry(callApi, {
+  times: 5,
+  getDelay: (error, { computedDelay }) => {
+    const retryAfter = (error as { retryAfterMs?: number }).retryAfterMs;
+    return retryAfter ?? computedDelay; // fall back to the backoff curve
+  },
+});
+```
+
+### Poll until a condition holds
+
+Some calls succeed but aren't _done_ — a job that reports `status: 'pending'`.
+Retry on the resolved value, not just on errors:
+
+```ts
+const job = await retry(() => fetch(`/jobs/${id}`).then((r) => r.json()), {
+  forever: true,
+  initialDelayTime: 1_000,
+  maxElapsedTime: 60_000, // stop polling after a minute
+  until: (result) => (result as { status: string }).status === 'done',
+});
+```
+
 ## Compatibility
 
 - **Runtimes:** modern browsers and Node `>= 12`.
@@ -226,17 +368,20 @@ working without edits. When upgrading:
 
 - **Remove `@types/promise-fn-retry`** — types are now bundled with the package.
 - You can now `import` it as ESM as well as `require` it.
-- New optional options are available: `backoffFactor`, `maxDelayTime`, `jitter`
-  and `signal`. You only adopt them if you want them.
+- New optional options are available: `backoffFactor`, `maxDelayTime`, `jitter`,
+  `forever`, `attemptTimeout`, `maxElapsedTime`, `getDelay`, `until` and `signal`,
+  plus a `BailError` to give up early and an `attempt` number passed to `fn`. You
+  only adopt them if you want them.
 
-## Demo
+## Documentation
 
-- **Browser:** the [live playground](https://felippemauricio.github.io/promise-fn-retry/)
-  visualises backoff, jitter, the delay cap and cancellation.
-- **Local:** `npm run demo:browser` (serves the playground) and
-  `npm run demo:backend` (a flaky HTTP server with a retrying client).
+Full guides, the API reference and an **interactive playground** — with a live
+backoff-timeline visualisation embedded on every feature page — live on the docs
+site:
 
-See [`demo/`](https://github.com/felippemauricio/promise-fn-retry/tree/main/demo).
+**<https://felippemauricio.github.io/promise-fn-retry/>**
+
+Run the docs locally with `npm run docs:dev`.
 
 ## Development
 
@@ -289,3 +434,5 @@ significant changes first. Documentation is written in Australian English (en-AU
 ## License
 
 MIT © 2018-present Felippe Maurício. See [LICENSE.md](https://github.com/felippemauricio/promise-fn-retry/blob/main/LICENSE.md).
+
+Built and maintained by Felippe Maurício — [LinkedIn](https://www.linkedin.com/in/felippemauricio/) · [GitHub](https://github.com/felippemauricio).

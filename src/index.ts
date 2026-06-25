@@ -1,2 +1,11 @@
-export { default, retry } from './retry';
-export type { Options, ResolvedOptions, OnRetry, ShouldRetry } from './types';
+export { default, retry, BailError, AttemptTimeoutError } from './retry';
+export type {
+  Options,
+  ResolvedOptions,
+  OnRetry,
+  ShouldRetry,
+  Jitter,
+  OperationFn,
+  GetDelay,
+  Until,
+} from './types';

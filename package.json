@@ -1,6 +1,6 @@
 {
   "name": "promise-fn-retry",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A tiny, typed, isomorphic retry with exponential backoff, jitter and AbortSignal for failed promises",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -35,8 +35,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "demo:browser": "npm run build && node demo/serve.mjs",
-    "demo:backend": "npm run build && node demo/backend/server.mjs",
+    "docs:dev": "vitepress dev website",
+    "docs:build": "vitepress build website",
+    "docs:preview": "vitepress preview website",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -74,6 +75,7 @@
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.1",
+    "vitepress": "^1.6.4",
     "vitest": "^4.1.9"
   }
 }
