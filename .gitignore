@@ -161,7 +161,7 @@ fabric.properties
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
 
 # Thumbnails
 ._*
@@ -438,5 +438,9 @@ coverage/
 
 # GitHub Pages build artifact
 _site/
+
+# VitePress docs site build output and cache
+**/.vitepress/dist/
+**/.vitepress/cache/
 
 # Note: package-lock.json is intentionally committed and must not be ignored.

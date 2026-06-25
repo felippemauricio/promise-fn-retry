@@ -17,10 +17,10 @@ export default defineConfig([
     sourcemap: true,
     minify: false,
     target: 'es2015',
-    // Preserves v1 behaviour: `require('promise-fn-retry')` returns the
-    // function directly, with `.retry` and `.default` also available.
+    // Preserves v1 behaviour: `require('promise-fn-retry')` returns the function
+    // directly, with the named exports attached.
     footer: {
-      js: 'module.exports = retry; module.exports.retry = retry; module.exports.default = retry;',
+      js: 'module.exports = retry; module.exports.retry = retry; module.exports.default = retry; module.exports.BailError = BailError; module.exports.AttemptTimeoutError = AttemptTimeoutError;',
     },
   },
 ]);

@@ -1,4 +1,4 @@
-name: Deploy demo to Pages
+name: Deploy docs to Pages
 
 on:
   push:
@@ -26,15 +26,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - name: Assemble site
-        run: |
-          mkdir -p _site
-          cp demo/browser/index.html demo/browser/styles.css demo/browser/app.js _site/
-          cp dist/index.js _site/promise-fn-retry.js
-          cp dist/index.js.map _site/index.js.map
+      - name: Build docs site
+        run: npm run docs:build
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: website/.vitepress/dist
 
   deploy:
     needs: build
