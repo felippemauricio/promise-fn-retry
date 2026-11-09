@@ -103,21 +103,25 @@ Only `fn` is required. Every option has a default that reproduces v1 behaviour.
 
 ### Options
 
-| Option             | Type                                                 | Default     | Description                                                                                                       |
-| ------------------ | ---------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------- |
-| `times`            | `number`                                             | `1`         | Number of retries after the first failure.                                                                        |
-| `initialDelayTime` | `number`                                             | `100`       | Delay in milliseconds before the first retry.                                                                     |
-| `backoffFactor`    | `number`                                             | `2`         | Multiplier applied to the delay on each retry. `1` = constant, `2` = doubles, `3` = steeper.                      |
-| `maxDelayTime`     | `number`                                             | `Infinity`  | Upper bound on the delay between attempts, in milliseconds.                                                       |
-| `jitter`           | `boolean \| 'equal' \| 'full'`                       | `false`     | Randomise each delay. `'equal'` (or `true`) spreads it across `[delay / 2, delay]`; `'full'` across `[0, delay]`. |
-| `forever`          | `boolean`                                            | `false`     | Retry indefinitely until success or abort, ignoring `times`.                                                      |
-| `attemptTimeout`   | `number`                                             | `Infinity`  | Abort and retry a single attempt that runs longer than this, in ms (see below).                                   |
-| `maxElapsedTime`   | `number`                                             | `Infinity`  | Stop retrying once this much wall-clock time has elapsed in total, in ms.                                         |
-| `getDelay`         | `(error, ctx) => number \| null`                     | `null`      | Derive the next wait from the error (e.g. a `Retry-After` header); return ms to override, or `null` to keep it.   |
-| `until`            | `(result) => boolean`                                | `null`      | Retry while the resolved value fails this predicate — turns `retry` into a poll-until.                            |
-| `signal`           | `AbortSignal`                                        | `undefined` | Cancel pending retries. Works in the browser and in Node.                                                         |
-| `onRetry`          | `(error: unknown, options: ResolvedOptions) => void` | `null`      | Called on each retry. Useful for logging and metrics.                                                             |
-| `shouldRetry`      | `(error: unknown) => boolean`                        | `null`      | Called before each retry. Return `false` to stop retrying immediately.                                            |
+| Option             | Type                                                 | Default     | Description                                                                                                         |
+| ------------------ | ---------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------- |
+| `times`            | `number`                                             | `1`         | Number of retries after the first failure.                                                                          |
+| `initialDelayTime` | `number`                                             | `100`       | Delay in milliseconds before the first retry.                                                                       |
+| `backoffFactor`    | `number`                                             | `2`         | Multiplier applied to the delay on each retry. `1` = constant, `2` = doubles, `3` = steeper.                        |
+| `maxDelayTime`     | `number`                                             | `Infinity`  | Upper bound on the delay between attempts, in milliseconds.                                                         |
+| `jitter`           | `boolean \| 'equal' \| 'full'`                       | `false`     | Randomise each delay. `'equal'` (or `true`) spreads it across `[delay / 2, delay]`; `'full'` across `[0, delay]`.   |
+| `forever`          | `boolean`                                            | `false`     | Retry indefinitely until success or abort, ignoring `times`.                                                        |
+| `attemptTimeout`   | `number`                                             | `Infinity`  | Abort and retry a single attempt that runs longer than this, in ms (see below).                                     |
+| `maxElapsedTime`   | `number`                                             | `Infinity`  | Stop retrying once this much wall-clock time has elapsed in total, in ms.                                           |
+| `getDelay`         | `(error, ctx) => number \| null`                     | `null`      | Derive the next wait from the error (e.g. a `Retry-After` header); return ms to override, or `null` to keep it.     |
+| `until`            | `(result) => boolean`                                | `null`      | Retry while the resolved value fails this predicate — turns `retry` into a poll-until.                              |
+| `signal`           | `AbortSignal`                                        | `undefined` | Cancel pending retries. Works in the browser and in Node.                                                           |
+| `onRetry`          | `(error: unknown, options: ResolvedOptions) => void` | `null`      | Called after each wait, just before the retry; `options.retained` is the retries made so far. For logs and metrics. |
+| `shouldRetry`      | `(error: unknown) => boolean`                        | `null`      | Called before each retry. Return `false` to stop retrying immediately.                                              |
+
+An option set to `undefined` keeps its default, exactly as if it were left out.
+Delays and timeouts of any length are honoured: a value past the `setTimeout`
+limit (2^31 − 1 ms, about 24.8 days) is waited in full rather than firing at once.
 
 #### Alternative option names
 
@@ -135,8 +139,9 @@ canonical one wins.
 
 ### Returns
 
-`Promise<T>` — resolves with whatever `fn` resolves to, or rejects with the last
-error thrown by `fn` (or with the abort reason if a `signal` aborts).
+`Promise<T>` — resolves with whatever `fn` resolves to (or the last value when
+`until` runs out), or rejects with the last error thrown by `fn` (or with the abort
+reason if a `signal` aborts, or a `BailError`'s cause).
 
 ### Exported types
 
@@ -358,7 +363,8 @@ const job = await retry(() => fetch(`/jobs/${id}`).then((r) => r.json()), {
 - **Runtimes:** modern browsers and Node `>= 12`.
 - **Modules:** ships ESM (`import`) and CommonJS (`require`); `require('promise-fn-retry')`
   returns the function directly.
-- **Types:** bundled — TypeScript users need nothing extra.
+- **Types:** bundled for both formats — TypeScript users need nothing extra, including
+  `import retry = require('promise-fn-retry')` under `node16`/`nodenext`.
 - **Dependencies:** none.
 
 ## Migrating from v1

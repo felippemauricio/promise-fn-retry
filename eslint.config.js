@@ -14,4 +14,9 @@ export default tseslint.config(
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
+  {
+    // Build and check scripts run on Node.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: { console: 'readonly' } },
+  },
 );

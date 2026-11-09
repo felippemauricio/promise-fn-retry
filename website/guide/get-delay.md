@@ -27,6 +27,11 @@ await retry(callApi, {
 The callback receives the error plus a context of `{ attempt, computedDelay }` —
 the attempt that just failed and the delay the library would have used.
 
+Any non-negative number is honoured, however long — even past the 24.8-day
+`setTimeout` limit. A negative number or `NaN` (say, an unparseable header) is
+ignored, so the backoff applies. `Infinity` waits until your `signal` aborts, and
+`maxElapsedTime` still trims the wait to the budget.
+
 ## Try it
 
 The simulated server returns `429` with a `Retry-After` hint for the first couple

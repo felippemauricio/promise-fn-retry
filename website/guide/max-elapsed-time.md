@@ -23,6 +23,24 @@ await retry(callApi, {
 It composes with everything: combine it with `forever` for "try as hard as you
 can within 30s", or with `times` as a belt-and-braces upper bound.
 
+## What the budget covers
+
+The budget decides whether another attempt **starts**; it does not cut short an
+attempt that is already running. If the final attempt hangs past the deadline,
+`retry` waits for it. To bound that too, set an
+[`attemptTimeout`](./attempt-timeout):
+
+```ts
+await retry(callApi, {
+  forever: true,
+  maxElapsedTime: 30_000, // no new attempt after 30s…
+  attemptTimeout: 5_000, // …and none runs longer than 5s, so it settles by ~35s
+});
+```
+
+When polling with [`until`](./until), running out of budget resolves with the last
+value instead of rejecting.
+
 ## Try it
 
 The request never recovers here, so the **budget** is what stops it — note how it
