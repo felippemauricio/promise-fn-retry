@@ -15,13 +15,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
-      # Node versions the dev toolchain supports (Vitest 4 needs Node 20+).
+      # Node versions the dev toolchain supports (Vitest 5 and tsup 9 need Node 22.18+).
       # The published library itself targets ES2015 and supports Node >= 12.
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [22.x, 24.x]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
@@ -33,7 +33,7 @@ jobs:
       - run: npm run build
       - name: Upload coverage to Codecov
         if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info

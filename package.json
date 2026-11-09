@@ -69,13 +69,17 @@
   "homepage": "https://github.com/felippemauricio/promise-fn-retry#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@vitest/coverage-v8": "^4.1.9",
-    "eslint": "^10.5.0",
-    "prettier": "^3.8.4",
-    "tsup": "^8.5.1",
+    "@vitest/coverage-v8": "^5.1.0",
+    "eslint": "^10.14.0",
+    "prettier": "^3.9.10",
+    "tsup": "^9.0.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.1",
+    "typescript-eslint": "^8.72.1",
     "vitepress": "^1.6.4",
-    "vitest": "^4.1.9"
+    "vitest": "^5.1.0"
+  },
+  "overrides": {
+    "minimatch": "^11.0.5",
+    "vite": "^6.4.5"
   }
 }

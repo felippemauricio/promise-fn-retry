@@ -53,8 +53,8 @@ bundled types.
 
 ## Release
 
-- CI runs on every branch push and PR (Node 20/22 matrix: lint, format check,
-  typecheck, test+coverage, build). The dev toolchain needs Node 20+; the
+- CI runs on every branch push and PR (Node 22/24 matrix: lint, format check,
+  typecheck, test+coverage, build). The dev toolchain needs Node 22.18+; the
   published library still targets ES2015 / Node >= 12.
 - Publishing = create a GitHub Release; the `release.yml` workflow publishes to
   npm via `NPM_TOKEN` with provenance. Bump the version in `package.json` first.
