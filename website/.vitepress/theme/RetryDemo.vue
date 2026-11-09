@@ -49,7 +49,7 @@ const FIELDS: Record<
 > = {
   times: {
     label: 'times',
-    hint: 'retries after the first failure',
+    hint: 'the most retries; stops at the first success',
     type: 'number',
     min: 0,
     max: 12,
@@ -98,7 +98,7 @@ const FIELDS: Record<
   },
   failUntil: {
     label: 'failUntil',
-    hint: 'attempts that fail before success',
+    hint: 'how many attempts fail before one succeeds',
     type: 'number',
     min: 0,
     max: 12,
@@ -341,14 +341,16 @@ async function run() {
         </div>
       </div>
 
-      <ol class="rd-log">
-        <li v-if="!logs.length" class="rd-empty">Press Run to start.</li>
-        <li v-for="(l, i) in logs" :key="i" class="rd-line" :class="l.state">
-          <span class="rd-n">#{{ l.n }}</span
-          ><span class="rd-state">{{ LABELS[l.state] }}</span
-          ><span class="rd-detail">{{ l.detail }}</span>
-        </li>
-      </ol>
+      <div class="rd-logpane">
+        <ol class="rd-log">
+          <li v-if="!logs.length" class="rd-empty">Press Run to start.</li>
+          <li v-for="(l, i) in logs" :key="i" class="rd-line" :class="l.state">
+            <span class="rd-n">#{{ l.n }}</span
+            ><span class="rd-state">{{ LABELS[l.state] }}</span
+            ><span class="rd-detail">{{ l.detail }}</span>
+          </li>
+        </ol>
+      </div>
     </div>
   </div>
 </template>
@@ -470,6 +472,7 @@ async function run() {
   color: var(--rd-muted);
 }
 .rd-legend li {
+  margin: 0; /* VitePress adds a top margin to every li after the first */
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -608,14 +611,21 @@ async function run() {
   cursor: not-allowed;
 }
 
+/* The pane fills its grid cell, as tall as the controls, and the log scrolls
+   inside it, so no strip of the grid background shows below a short log. */
+.rd-logpane {
+  position: relative;
+  min-height: 260px;
+  background: var(--rd-panel);
+}
 .rd-log {
+  position: absolute;
+  inset: 0;
   margin: 0;
   padding: 1rem 1.1rem;
   list-style: none;
   font-family: var(--rd-mono);
   font-size: 0.8rem;
-  background: var(--rd-panel);
-  max-height: 260px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -625,6 +635,7 @@ async function run() {
   color: var(--rd-muted);
 }
 .rd-line {
+  margin: 0;
   display: grid;
   grid-template-columns: 2.2rem 5.5rem auto;
   gap: 0.5rem;
