@@ -397,15 +397,23 @@ npm test          # run the tests (Vitest)
 npm run lint      # ESLint
 npm run typecheck # tsc --noEmit
 npm run build     # tsup → dist/ (ESM + CJS + .d.ts)
+npm run check:package # attw, publint and a smoke test of dist/
 ```
 
-## Working with Claude Code
+## Working with coding agents
 
-This repository is set up to be edited with [Claude Code](https://claude.com/claude-code)
-(or any coding agent). A [`CLAUDE.md`](https://github.com/felippemauricio/promise-fn-retry/blob/main/CLAUDE.md)
-at the root tells the agent what the library does, where the code lives
-(`src/types.ts`, `src/retry.ts`, `src/index.ts`), the commands to run, and the
-conventions to follow.
+This repository is set up to be changed by a coding agent such as
+[Claude Code](https://claude.com/claude-code) or Codex. The agent guide is
+[`AGENTS.md`](https://github.com/felippemauricio/promise-fn-retry/blob/main/AGENTS.md)
+(`CLAUDE.md` simply imports it). It tells the agent:
+
+- what the library does and what must not change (ES2015 output, Node >= 12, zero
+  dependencies, additive options with defaults that preserve behaviour);
+- where the code lives: `src/retry.ts` (the loop), `src/errors.ts`, `src/types.ts`,
+  and the helpers in `src/internal/` (options, backoff, attempt, timers);
+- how the tests are written: one file per feature in `tests/`, on fake timers,
+  asserting exact waits, values and errors;
+- the conventions: strict TypeScript, Conventional Commits and Australian English.
 
 To make a change:
 
@@ -413,24 +421,25 @@ To make a change:
 git clone https://github.com/felippemauricio/promise-fn-retry.git
 cd promise-fn-retry
 npm install
-claude   # start Claude Code in the repo, then describe what you want
+claude   # or codex: start the agent in the repo, then describe what you want
 ```
 
 Some prompts that work well here:
 
-- _"Add a `maxRetries`-reached callback that fires when the retries are exhausted."_
-- _"Change the jitter strategy to full jitter and update the tests and README."_
-- _"Add a `timeout` option that rejects an individual attempt after N ms."_
+- _"Add an `onGiveUp` callback that fires once when the retries run out, with the last error."_
+- _"Let `shouldRetry` also receive the attempt number, without breaking existing callers."_
+- _"Add a guide page to the docs site for combining `until` with `maxElapsedTime`."_
 
-The agent has everything it needs to keep the bar high: `npm test` (100%
-coverage is enforced), `npm run lint`, `npm run typecheck` and `npm run build`.
-Conventions it should follow are in `CLAUDE.md` — strict TypeScript, additive
-options that preserve the defaults, Conventional Commits, and documentation in
-Australian English. Run the full check before opening a PR:
+Every change has to pass the same gate as CI, with 100% coverage enforced:
 
 ```bash
-npm run lint && npm run format:check && npm run typecheck && npm run test:coverage && npm run build
+npm run lint && npm run format:check && npm run typecheck && npm run test:coverage \
+  && npm run build && npm run check:package
 ```
+
+`check:package` verifies the built package itself: that its types resolve in
+every module mode (`attw`), that it is publishable (`publint`), and that both
+formats load and run with ES2015 built-ins only.
 
 ## Contributing
 
