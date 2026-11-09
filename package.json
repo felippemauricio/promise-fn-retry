@@ -1,11 +1,11 @@
 {
   "name": "promise-fn-retry",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A tiny, typed, isomorphic retry with exponential backoff, jitter and AbortSignal for failed promises",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
       "import": {
@@ -27,7 +27,7 @@
   },
   "packageManager": "npm@11.17.0",
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && node scripts/cjs-types.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -38,7 +38,8 @@
     "docs:dev": "vitepress dev website",
     "docs:build": "vitepress build website",
     "docs:preview": "vitepress preview website",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "check:package": "attw --pack . && publint && node scripts/smoke-dist.mjs"
   },
   "repository": {
     "type": "git",
@@ -68,14 +69,20 @@
   },
   "homepage": "https://github.com/felippemauricio/promise-fn-retry#readme",
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "^10.0.1",
-    "@vitest/coverage-v8": "^4.1.9",
-    "eslint": "^10.5.0",
-    "prettier": "^3.8.4",
-    "tsup": "^8.5.1",
+    "@vitest/coverage-v8": "^5.1.0",
+    "eslint": "^10.14.0",
+    "prettier": "^3.9.10",
+    "publint": "^0.3.25",
+    "tsup": "^9.0.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.1",
+    "typescript-eslint": "^8.72.1",
     "vitepress": "^1.6.4",
-    "vitest": "^4.1.9"
+    "vitest": "^5.1.0"
+  },
+  "overrides": {
+    "minimatch": "^11.0.5",
+    "vite": "^6.4.5"
   }
 }

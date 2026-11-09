@@ -1,4 +1,5 @@
-export { default, retry, BailError, AttemptTimeoutError } from './retry';
+export { default, retry } from './retry';
+export { BailError, AttemptTimeoutError } from './errors';
 export type {
   Options,
   ResolvedOptions,

@@ -30,10 +30,16 @@ It stops when the retries are exhausted, `shouldRetry` returns `false`, the budg
 | `getDelay`         | `(error, ctx) => number \| null` | `null`      | Derive the next wait from the error; return ms to override or `null` to keep the backoff. |
 | `until`            | `(result) => boolean`            | `null`      | Retry while the resolved value fails this predicate (polling).                            |
 | `signal`           | `AbortSignal`                    | `undefined` | Cancel pending retries.                                                                   |
-| `onRetry`          | `(error, options) => void`       | `null`      | Called on each retry — for logging and metrics.                                           |
+| `onRetry`          | `(error, options) => void`       | `null`      | Called after each wait, just before the retry — for logging and metrics.                  |
 | `shouldRetry`      | `(error) => boolean`             | `null`      | Return `false` to stop retrying immediately.                                              |
 
-`getDelay`'s context is `{ attempt: number; computedDelay: number }`.
+`getDelay`'s context is `{ attempt: number; computedDelay: number }`. `onRetry`
+receives the error (`undefined` while polling with `until`) and the resolved
+options, whose `retained` is the number of retries made so far.
+
+An option set to `undefined` keeps its default, exactly as if it were left out.
+Delays and timeouts of any length are honoured: a value past the `setTimeout`
+limit (2^31 − 1 ms, about 24.8 days) is waited in full rather than firing at once.
 
 ## Returns
 
@@ -72,7 +78,8 @@ import type {
 Each retry multiplies the previous delay by `backoffFactor`, starting from
 `initialDelayTime`; the result is clamped to `maxDelayTime`, randomised by
 `jitter`, and finally overridden by `getDelay` (if any) and trimmed to fit
-`maxElapsedTime`.
+`maxElapsedTime`. `getDelay` results that are negative or `NaN` are ignored;
+`Infinity` waits until the `signal` aborts (or the budget trims it).
 
 | Retry | Delay (defaults) |
 | ----- | ---------------- |
